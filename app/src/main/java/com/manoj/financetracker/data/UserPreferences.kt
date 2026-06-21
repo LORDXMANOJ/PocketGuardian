@@ -31,6 +31,9 @@ class UserPreferences(context: Context) {
         val PENDING_UPI =
             stringPreferencesKey("pending_upi")
 
+        val REMINDER_COUNT =
+            intPreferencesKey("reminder_count")
+
     }
 
     val isSetupFlow: Flow<Boolean> = dataStore.data.map { it[IS_SETUP] ?: false }
@@ -59,6 +62,11 @@ class UserPreferences(context: Context) {
     val pendingUpiFlow: Flow<String> =
         dataStore.data.map {
             it[PENDING_UPI] ?: ""
+        }
+
+    val reminderCountFlow: Flow<Int> =
+        dataStore.data.map {
+            it[REMINDER_COUNT] ?: 0
         }
 
     // Updated to save the date when we first set up
@@ -114,6 +122,7 @@ class UserPreferences(context: Context) {
             prefs.remove(PENDING_CATEGORY)
             prefs.remove(PENDING_MERCHANT)
             prefs.remove(PENDING_UPI)
+            prefs.remove(REMINDER_COUNT)
         }
     }
     suspend fun saveExpenseFromNotification(
@@ -152,6 +161,24 @@ class UserPreferences(context: Context) {
 
             prefs[EXPENSES_LIST] =
                 updatedExpenses
+        }
+    }
+    suspend fun incrementReminderCount() {
+
+        dataStore.edit { prefs ->
+
+            val current =
+                prefs[REMINDER_COUNT] ?: 0
+
+            prefs[REMINDER_COUNT] =
+                current + 1
+        }
+    }
+    suspend fun resetReminderCount() {
+
+        dataStore.edit { prefs ->
+
+            prefs[REMINDER_COUNT] = 0
         }
     }
 
